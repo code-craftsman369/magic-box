@@ -70,13 +70,13 @@ This project represents more than just code—it's about using technology to cre
 
 ### Why I Built This
 
-As a father transitioning from municipal government work to freelance engineering, I wanted to:
+As a father and a dedicated freelance engineer, I created this project with three goals in mind:
 
-1. **Inspire my children** to see the magic and possibilities in technology
-2. **Demonstrate love** through something uniquely personal and interactive
-3. **Build my first complete project** as I work toward becoming a top-tier blockchain engineer
+1. **Inspire my children** to see the magic and infinite possibilities in technology.
+2. **Demonstrate love** through something uniquely personal and interactive.
+3. **Build my first complete project** as I work toward becoming a top-tier blockchain engineer.
 
-This app represents my commitment to using technology not just for profit, but to **bring joy and create meaningful experiences**.
+This app represents my commitment to using technology not just for business, but to **bring joy and create meaningful experiences**.
 
 ### My Journey
 
@@ -187,9 +187,6 @@ X: [@web3_builder369](https://twitter.com/web3_builder369)
 ---
 
 ## 💡 Inspiration
-
-> *"The best way to predict the future is to create it."*  
-> — **Abraham Lincoln**
 
 This Magic Box is my way of creating a future where my children see programming not as intimidating code, but as a tool to **bring ideas to life** and **spread happiness**.
 
