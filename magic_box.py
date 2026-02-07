@@ -38,24 +38,28 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4) !important;
     }
 
-    /* 楽器ボタン：限界突破の巨大化 */
+    /* 【重要】スマホでも3列を維持する設定 */
+    [data-testid="column"] {
+        width: 32% !important;
+        flex: 1 1 30% !important;
+        min-width: 30% !important;
+    }
+
+    /* 楽器ボタン：特大サイズ */
     .instrument-container div.stButton > button {
-        font-size: 15rem !important; /* 文字サイズをさらにアップ */
-        line-height: 1 !important;
-        height: 350px !important;    /* 縦幅もさらに確保 */
+        font-size: 5rem !important; /* iPhoneで3列に並ぶための最適サイズ */
+        height: 120px !important;
         background: white !important;
-        border: 5px solid #FFB6C1 !important;
-        border-radius: 50px !important;
-        margin-bottom: 30px !important;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        transition: transform 0.1s !important;
+        border: 3px solid #FFB6C1 !important;
+        border-radius: 20px !important;
+        margin-bottom: 10px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
     
     .instrument-container div.stButton > button:active {
-        transform: scale(0.8) !important; /* 押した時に大きく凹むように */
+        transform: scale(0.9) !important;
     }
 
     .love-message-text {
@@ -68,15 +72,10 @@ st.markdown("""
         margin-top: 10px;
     }
 
-    /* iPhone/スマホ向けのレスポンシブ設定：画面幅いっぱいに */
     @media (max-width: 600px) {
         .title-text { font-size: 8vw; }
         .love-message-text { font-size: 8vw; }
-        .instrument-container div.stButton > button { 
-            font-size: 8rem !important; /* スマホの横幅3分割の限界サイズ */
-            height: 200px !important; 
-            border-radius: 30px !important;
-        }
+        .instrument-container div.stButton > button { font-size: 3.5rem !important; height: 100px !important; }
     }
     
     iframe {
@@ -92,7 +91,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- サウンドプログラム（変更なし） ---
+# --- サウンド・花火プログラム（変更なし） ---
 def play_sound(js_code):
     components.html(f"<script>(function(){{{js_code}}})();</script>", height=0)
 
@@ -171,7 +170,7 @@ if button:
         st.session_state.current_name = name
         
         if name == "こころ":
-            msg = f"💖 {name}さん 大好きだよ！ 💖"
+            msg = f"💖 {name}ちゃん 大好きだよ！ 💖"
         elif name == "ゆうと":
             msg = f"🚀 {name}くん だいすき！ 🚀"
         else:
@@ -186,7 +185,7 @@ if button:
 elif st.session_state.get('show_message') and st.session_state.get('current_name'):
     name = st.session_state.current_name
     if name == "こころ":
-        msg = f"💖 {name}さん 大好きだよ！ 💖"
+        msg = f"💖 {name}ちゃん 大好きだよ！ 💖"
     elif name == "ゆうと":
         msg = f"🚀 {name}くん だいすき！ 🚀"
     else:
@@ -197,28 +196,27 @@ elif st.session_state.get('show_message') and st.session_state.get('current_name
 st.markdown('<hr style="margin: 5px 0;">', unsafe_allow_html=True)
 st.markdown('<div style="text-align:center; color:#555; font-weight:bold; font-size:1.5rem; margin-bottom:5px;">🎹 おとあそび</div>', unsafe_allow_html=True)
 
+# 楽器ボタンエリア
 st.markdown('<div class="instrument-container">', unsafe_allow_html=True)
 
-row1_col1, row1_col2, row1_col3 = st.columns(3)
-with row1_col1:
-    if st.button("🎹", key="w1"):
+# ここで明示的にカラムを分ける
+col1, col2, col3 = st.columns(3)
+with col1:
+    if st.button("🎹", key="x1"):
         play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.type='sine';o.connect(g);g.connect(a.destination);o.frequency.setValueAtTime(440,a.currentTime);g.gain.setValueAtTime(0.5,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.5);o.start();o.stop(a.currentTime+0.5);")
-with row1_col2:
-    if st.button("🥁", key="w2"):
-        play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const s=a.sampleRate*0.5;const b=a.createBuffer(1,s,a.sampleRate);const d=b.getChannelData(0);for(let i=0;i<s;i++){d[i]=Math.random()*2-1;}const n=a.createBufferSource();n.buffer=b;const f=a.createBiquadFilter();f.type='highpass';f.frequency.value=5000;const g=a.createGain();n.connect(f);f.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.5,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.5);n.start();")
-with row1_col3:
-    if st.button("🔔", key="w3"):
-        play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.type='triangle';o.connect(g);g.connect(a.destination);o.frequency.setValueAtTime(880,a.currentTime);g.gain.setValueAtTime(0.3,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+1.0);o.start();o.stop(a.currentTime+1.0);")
-
-row2_col1, row2_col2, row2_col3 = st.columns(3)
-with row2_col1:
-    if st.button("🪘", key="w4"):
+    if st.button("🪘", key="x4"):
         play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.type='sine';o.connect(g);g.connect(a.destination);o.frequency.setValueAtTime(100,a.currentTime);o.frequency.exponentialRampToValueAtTime(10,a.currentTime+0.2);g.gain.setValueAtTime(0.8,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.2);o.start();o.stop(a.currentTime+0.2);")
-with row2_col2:
-    if st.button("🎷", key="w5"):
+
+with col2:
+    if st.button("🥁", key="x2"):
+        play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const s=a.sampleRate*0.5;const b=a.createBuffer(1,s,a.sampleRate);const d=b.getChannelData(0);for(let i=0;i<s;i++){d[i]=Math.random()*2-1;}const n=a.createBufferSource();n.buffer=b;const f=a.createBiquadFilter();f.type='highpass';f.frequency.value=5000;const g=a.createGain();n.connect(f);f.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.5,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.5);n.start();")
+    if st.button("🎷", key="x5"):
         play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.type='square';o.connect(g);g.connect(a.destination);o.frequency.setValueAtTime(349.23,a.currentTime);g.gain.setValueAtTime(0.2,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.8);o.start();o.stop(a.currentTime+0.8);")
-with row2_col3:
-    if st.button("👏", key="w6"):
+
+with col3:
+    if st.button("🔔", key="x3"):
+        play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.type='triangle';o.connect(g);g.connect(a.destination);o.frequency.setValueAtTime(880,a.currentTime);g.gain.setValueAtTime(0.3,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+1.0);o.start();o.stop(a.currentTime+1.0);")
+    if st.button("👏", key="x6"):
         play_sound("const a=new (window.AudioContext||window.webkitAudioContext)();const s=a.sampleRate*0.1;const b=a.createBuffer(1,s,a.sampleRate);const d=b.getChannelData(0);for(let i=0;i<s;i++){d[i]=Math.random()*2-1;}const n=a.createBufferSource();n.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=2000;const g=a.createGain();n.connect(f);f.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.8,a.currentTime);g.gain.exponentialRampToValueAtTime(0.01,a.currentTime+0.1);n.start();")
 
 st.markdown('</div>', unsafe_allow_html=True)
