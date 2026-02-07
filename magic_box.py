@@ -6,19 +6,16 @@ import time
 # ページ設定
 st.set_page_config(page_title="パパの魔法", page_icon="🪄", layout="centered")
 
-# --- セッション状態の初期化（エラー防止） ---
+# --- セッション状態の初期化 ---
 if 'show_message' not in st.session_state:
     st.session_state.show_message = False
 if 'current_name' not in st.session_state:
     st.session_state.current_name = ""
-if 'timestamp' not in st.session_state:
-    st.session_state.timestamp = time.time()
 
 # --- 魔法のデザイン (CSS) ---
 st.markdown("""
 <style>
     .stApp { background-color: #FFFFFF; }
-    
     .title-text {
         color: #333333;
         font-size: 1.8rem;
@@ -27,7 +24,6 @@ st.markdown("""
         padding: 20px 0;
         white-space: nowrap;
     }
-
     .stButton > button {
         width: 100%;
         font-size: 1.2rem;
@@ -37,7 +33,6 @@ st.markdown("""
         color: white;
         border: none;
     }
-
     .love-message-text {
         color: #FF1493;
         font-size: 2.5rem;
@@ -47,13 +42,10 @@ st.markdown("""
         text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.9);
         margin-top: 30px;
     }
-
-    /* iPhoneで一行に収まるように自動調整 */
     @media (max-width: 600px) {
         .title-text { font-size: 1.4rem; }
         .love-message-text { font-size: 7vw; }
     }
-
     iframe {
         position: fixed;
         top: 0;
@@ -67,7 +59,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 花火のプログラム ---
+# --- 花火のプログラム（修正版） ---
 def get_fireworks_html(seed):
     return f"""
 <!DOCTYPE html>
@@ -83,6 +75,7 @@ def get_fireworks_html(seed):
 </style>
 </head>
 <body>
+<div id="firework-container-{seed}"></div>
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function boom() {{
@@ -120,8 +113,8 @@ function launch() {{
     }}
 }}
 setTimeout(launch, 100);
-setTimeout(launch, 700);
-setTimeout(launch, 1300);
+setTimeout(launch, 600);
+setTimeout(launch, 1100);
 </script>
 </body>
 </html>
@@ -137,13 +130,15 @@ if button:
     if name:
         st.session_state.show_message = True
         st.session_state.current_name = name
-        st.session_state.timestamp = time.time()
         
-        unique_seed = int(st.session_state.timestamp * 1000)
-        components.html(get_fireworks_html(unique_seed), height=0)
+        # ボタンを押すたびに確実に新しい花火を生成するためのランダムキー
+        new_seed = random.randint(0, 1000000)
+        
+        # keyパラメータを追加して、Streamlitに毎回「新しい要素」だと認識させる
+        components.html(get_fireworks_html(new_seed), height=0, key=f"fw_{new_seed}")
         
         if name == "こころ":
-            msg = f"💖 {name}ちゃん 大好きだよ！ 💖"
+            msg = f"💖 {name}さん　大好きだよ！ 💖"
         elif name == "ゆうと":
             msg = f"🚀 {name}くん だいすき！ 🚀"
         else:
@@ -154,7 +149,6 @@ if button:
         st.warning("なまえを いれてね！")
         st.session_state.show_message = False
 
-# エラーを回避しつつ、前回のメッセージを保持する処理
 elif st.session_state.get('show_message') and st.session_state.get('current_name'):
     name = st.session_state.current_name
     if name == "こころ":
