@@ -6,13 +6,11 @@ import time
 # ページ設定
 st.set_page_config(page_title="パパの魔法", page_icon="🪄", layout="centered")
 
-# --- セッション状態の初期化（エラーを確実に防ぐ） ---
+# --- セッション状態の初期化 ---
 if 'show_message' not in st.session_state:
     st.session_state.show_message = False
 if 'current_name' not in st.session_state:
     st.session_state.current_name = ""
-if 'firework_count' not in st.session_state:
-    st.session_state.firework_count = 0
 
 # --- 魔法のデザイン (CSS) ---
 st.markdown("""
@@ -62,7 +60,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 花火のプログラム ---
-def get_fireworks_html(seed):
+def get_fireworks_html():
+    # キャッシュを完全に回避するために、JavaScriptの中にランダムなIDを埋め込みます
+    rid = random.randint(0, 999999)
     return f"""
 <!DOCTYPE html>
 <html>
@@ -77,46 +77,48 @@ def get_fireworks_html(seed):
 </style>
 </head>
 <body>
+<div id="id-{rid}"></div>
 <script>
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function boom() {{
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = 'triangle';
-    o.connect(g); g.connect(audioCtx.destination);
-    const n = audioCtx.currentTime;
-    o.frequency.setValueAtTime(150, n);
-    o.frequency.exponentialRampToValueAtTime(40, n + 0.4);
-    g.gain.setValueAtTime(0.5, n);
-    g.gain.exponentialRampToValueAtTime(0.01, n + 0.4);
-    o.start(); o.stop(n + 0.4);
-}}
-function launch() {{
-    boom();
-    const x = Math.random() * window.innerWidth;
-    const y = window.innerHeight * 0.4;
-    const colors = ['#FF0055', '#FF8800', '#0099FF', '#AA00FF', '#00CC00', '#FF00FF'];
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    for(let i=0; i<85; i++) {{
-        const p = document.createElement('div');
-        p.className = 'p';
-        p.style.left = x+'px'; p.style.top = y+'px';
-        p.style.width = '8px'; p.style.height = '8px';
-        p.style.backgroundColor = color;
-        p.style.boxShadow = `0 0 10px 2px ${{color}}`;
-        const a = Math.random() * Math.PI * 2;
-        const v = 120 + Math.random() * 200;
-        p.style.setProperty('--x', Math.cos(a)*v+'px');
-        p.style.setProperty('--y', Math.sin(a)*v+'px');
-        p.style.animation = 'f 1.3s ease-out forwards';
-        document.body.appendChild(p);
-        setTimeout(()=>p.remove(), 1300);
+(function() {{
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function boom() {{
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'triangle';
+        o.connect(g); g.connect(audioCtx.destination);
+        const n = audioCtx.currentTime;
+        o.frequency.setValueAtTime(150, n);
+        o.frequency.exponentialRampToValueAtTime(40, n + 0.4);
+        g.gain.setValueAtTime(0.5, n);
+        g.gain.exponentialRampToValueAtTime(0.01, n + 0.4);
+        o.start(); o.stop(n + 0.4);
     }}
-}}
-// シード値を利用して打ち上げのタイミングを少し変える
-setTimeout(launch, 100);
-setTimeout(launch, 600);
-setTimeout(launch, 1100);
+    function launch() {{
+        boom();
+        const x = Math.random() * window.innerWidth;
+        const y = window.innerHeight * 0.4;
+        const colors = ['#FF0055', '#FF8800', '#0099FF', '#AA00FF', '#00CC00', '#FF00FF'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for(let i=0; i<85; i++) {{
+            const p = document.createElement('div');
+            p.className = 'p';
+            p.style.left = x+'px'; p.style.top = y+'px';
+            p.style.width = '8px'; p.style.height = '8px';
+            p.style.backgroundColor = color;
+            p.style.boxShadow = `0 0 10px 2px ${{color}}`;
+            const a = Math.random() * Math.PI * 2;
+            const v = 120 + Math.random() * 200;
+            p.style.setProperty('--x', Math.cos(a)*v+'px');
+            p.style.setProperty('--y', Math.sin(a)*v+'px');
+            p.style.animation = 'f 1.3s ease-out forwards';
+            document.body.appendChild(p);
+            setTimeout(()=>p.remove(), 1300);
+        }}
+    }}
+    setTimeout(launch, 100);
+    setTimeout(launch, 600);
+    setTimeout(launch, 1100);
+}})();
 </script>
 </body>
 </html>
@@ -132,10 +134,7 @@ if button:
     if name:
         st.session_state.show_message = True
         st.session_state.current_name = name
-        # ボタンを押すごとにカウントを増やすことで、別の要素として認識させる
-        st.session_state.firework_count += 1
         
-        # 名前によるメッセージ
         if name == "こころ":
             msg = f"💖 {name}さん 大好きだよ！ 💖"
         elif name == "ゆうと":
@@ -145,16 +144,14 @@ if button:
         
         st.markdown(f'<div class="love-message-text">{msg}</div>', unsafe_allow_html=True)
         
-        # 花火の表示（keyを使わず、空のプレースホルダーを更新する方法）
-        firework_placeholder = st.empty()
-        with firework_placeholder:
-            unique_seed = random.randint(0, 1000000)
-            components.html(get_fireworks_html(unique_seed), height=0)
+        # 安定性が最も高い components.html に戻し、
+        # 毎回中身を完全に書き換える手法に一本化します
+        components.html(get_fireworks_html(), height=0)
+        
     else:
         st.warning("なまえを いれてね！")
         st.session_state.show_message = False
 
-# 前回のメッセージを保持する（花火はボタン押下時のみ）
 elif st.session_state.get('show_message') and st.session_state.get('current_name'):
     name = st.session_state.current_name
     if name == "こころ":
