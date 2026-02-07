@@ -34,6 +34,12 @@ This project represents more than just code—it's about using technology to cre
 - Glowing text animations that capture attention
 - Responsive design that works beautifully on all devices
 
+### 🎹 **Interactive Sound Play (Oto-Asobi)**
+- **6-Instrument Digital Orchestra**: Includes Piano, Cymbals, Bells, African Drum, Saxophone, and Castanets.
+- **Real-time Sound Synthesis**: Sounds are generated programmatically (Oscillators/Noise Generators) using JavaScript, requiring no external audio files.
+- **Mobile Grid Lock**: Custom CSS ensures a consistent 3x2 layout on all smartphone screens.
+
+
 ### 📱 **Mobile-Optimized Experience**
 - **Add to Home Screen** support for iOS/Android
 - Progressive Web App (PWA) capabilities
@@ -134,6 +140,15 @@ Each click triggers:
 - 🎵 Realistic explosion sounds
 - 💫 Glowing, animated text
 
+### Musical Instruments Corner
+Tap the oversized icons to play sounds:
+- 🎹 **Piano**: Clean Sine wave synthesis.
+- 🥁 **Cymbals**: High-pass filtered white noise.
+- 🔔 **Bells**: Resonant Triangle wave.
+- 🪘 **Drum**: Low-frequency Sine decay.
+- 🎷 **Saxophone**: Rich Square wave harmonics.
+- 👏 **Castanets**: Band-pass filtered percussive noise.
+
 ---
 
 ## 🔧 Technical Highlights
@@ -158,6 +173,22 @@ Each click triggers:
 # Unique seed values prevent caching
 # Smart message display logic
 ```
+
+### Real-Time Instrument Synthesis
+// Pure JavaScript Oscillator - No external files needed
+const audioCtx = new AudioContext();
+const osc = audioCtx.createOscillator();
+osc.type = 'sine'; // Pure tone
+osc.frequency.setValueAtTime(440, audioCtx.currentTime); // A4 Note
+osc.start();
+
+### Mobile Grid Lock (CSS Injection)
+/* Custom CSS to force 3-column layout on mobile */
+[data-testid="column"] {
+    width: 32% !important;
+    flex: 1 1 30% !important;
+    min-width: 30% !important;
+}
 
 ---
 
