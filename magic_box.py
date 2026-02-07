@@ -6,11 +6,13 @@ import time
 # ページ設定
 st.set_page_config(page_title="パパの魔法", page_icon="🪄", layout="centered")
 
-# --- セッション状態の初期化 ---
+# --- セッション状態の初期化（エラーを確実に防ぐ） ---
 if 'show_message' not in st.session_state:
     st.session_state.show_message = False
 if 'current_name' not in st.session_state:
     st.session_state.current_name = ""
+if 'firework_count' not in st.session_state:
+    st.session_state.firework_count = 0
 
 # --- 魔法のデザイン (CSS) ---
 st.markdown("""
@@ -59,7 +61,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 花火のプログラム（修正版） ---
+# --- 花火のプログラム ---
 def get_fireworks_html(seed):
     return f"""
 <!DOCTYPE html>
@@ -75,7 +77,6 @@ def get_fireworks_html(seed):
 </style>
 </head>
 <body>
-<div id="firework-container-{seed}"></div>
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function boom() {{
@@ -112,6 +113,7 @@ function launch() {{
         setTimeout(()=>p.remove(), 1300);
     }}
 }}
+// シード値を利用して打ち上げのタイミングを少し変える
 setTimeout(launch, 100);
 setTimeout(launch, 600);
 setTimeout(launch, 1100);
@@ -130,29 +132,33 @@ if button:
     if name:
         st.session_state.show_message = True
         st.session_state.current_name = name
+        # ボタンを押すごとにカウントを増やすことで、別の要素として認識させる
+        st.session_state.firework_count += 1
         
-        # ボタンを押すたびに確実に新しい花火を生成するためのランダムキー
-        new_seed = random.randint(0, 1000000)
-        
-        # keyパラメータを追加して、Streamlitに毎回「新しい要素」だと認識させる
-        components.html(get_fireworks_html(new_seed), height=0, key=f"fw_{new_seed}")
-        
+        # 名前によるメッセージ
         if name == "こころ":
-            msg = f"💖 {name}さん　大好きだよ！ 💖"
+            msg = f"💖 {name}さん 大好きだよ！ 💖"
         elif name == "ゆうと":
             msg = f"🚀 {name}くん だいすき！ 🚀"
         else:
             msg = f"🎉 {name}さん 大好き！ 🎉"
         
         st.markdown(f'<div class="love-message-text">{msg}</div>', unsafe_allow_html=True)
+        
+        # 花火の表示（keyを使わず、空のプレースホルダーを更新する方法）
+        firework_placeholder = st.empty()
+        with firework_placeholder:
+            unique_seed = random.randint(0, 1000000)
+            components.html(get_fireworks_html(unique_seed), height=0)
     else:
         st.warning("なまえを いれてね！")
         st.session_state.show_message = False
 
+# 前回のメッセージを保持する（花火はボタン押下時のみ）
 elif st.session_state.get('show_message') and st.session_state.get('current_name'):
     name = st.session_state.current_name
     if name == "こころ":
-        msg = f"💖 {name}ちゃん 大好きだよ！ 💖"
+        msg = f"💖 {name}さん 大好きだよ！ 💖"
     elif name == "ゆうと":
         msg = f"🚀 {name}くん だいすき！ 🚀"
     else:
